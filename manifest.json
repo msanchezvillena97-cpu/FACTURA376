@@ -1,0 +1,24 @@
+{
+  "name": "FACTURAS376",
+  "short_name": "FACTURAS376",
+  "description": "Aplicación de facturación para servicios de taxi",
+  "start_url": "/FACTURA376/",
+  "display": "standalone",
+  "background_color": "#f5f5f0",
+  "theme_color": "#222222",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
