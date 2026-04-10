@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>FACTURAS376</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif}
+body{background:#f5f5f0;min-height:100vh;color:#222}
+.nav{background:#fff;border-bottom:1px solid #e0e0d8;display:flex;align-items:center;padding:0 12px;height:52px;position:sticky;top:0;z-index:100;gap:4px}
+.nav-title{font-size:15px;font-weight:800;letter-spacing:2px;flex:1;color:#111}
+.tab-btn{padding:6px 10px;border:none;background:none;cursor:pointer;font-size:12px;border-radius:8px;color:#666;font-weight:600;white-space:nowrap}
+.tab-btn.active{background:#222;color:#fff}
+.screen{display:none;padding:14px;max-width:500px;margin:0 auto}
+.screen.active{display:block}
+.card{background:#fff;border-radius:12px;border:1px solid #e8e8e0;margin-bottom:12px;overflow:hidden}
+.card-header{padding:12px 16px;border-bottom:1px solid #f0f0e8;font-size:12px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:.5px}
+.card-body{padding:12px 16px}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:12px;color:#888;margin-bottom:4px;font-weight:500}
+.field-btn{width:100%;padding:9px 12px;background:#fafaf8;border:1px solid #e0e0d8;border-radius:8px;text-align:left;font-size:14px;color:#222;cursor:pointer;display:flex;justify-content:space-between;align-items:center;min-height:38px}
+.ph{color:#aaa}
+input[type=text],input[type=date],input[type=number]{width:100%;padding:9px 12px;border:1px solid #e0e0d8;border-radius:8px;font-size:14px;background:#fafaf8;color:#222;outline:none}
+input:focus{border-color:#888;background:#fff}
+.btn{padding:10px 18px;border-radius:9px;border:none;cursor:pointer;font-size:14px;font-weight:600}
+.btn-primary{background:#222;color:#fff;width:100%;margin-top:8px;display:block}
+.btn-secondary{background:#f0f0e8;color:#444;width:100%;margin-top:8px;display:block}
+.btn-danger{background:#fde8e8;color:#c00;font-size:12px;padding:5px 10px;border-radius:7px;border:none;cursor:pointer}
+.btn-warn{background:#fff8e8;color:#996600;font-size:12px;padding:5px 10px;border-radius:7px;border:none;cursor:pointer}
+.btn-pdf{background:#e8f0fe;color:#1a56c4;font-size:12px;padding:5px 10px;border-radius:7px;border:none;cursor:pointer}
+.btn-add{background:#f0f8f0;color:#2a7a2a;border:1.5px dashed #8cbc8c;border-radius:9px;width:100%;padding:9px;font-size:14px;cursor:pointer;margin-top:6px;font-weight:500}
+.concepto-row{background:#fafaf8;border-radius:8px;border:1px solid #e8e8e0;padding:10px;margin-bottom:8px;position:relative}
+.del-btn{position:absolute;top:8px;right:8px;background:none;border:none;color:#ccc;cursor:pointer;font-size:15px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.totales{background:#f8f8f4;border-radius:10px;padding:12px}
+.trow{display:flex;justify-content:space-between;padding:3px 0;font-size:14px}
+.trow.main{font-weight:700;font-size:15px;border-top:1.5px solid #ddd;margin-top:6px;padding-top:7px}
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:flex-end;justify-content:center}
+.modal-ov.open{display:flex}
+.modal{background:#fff;border-radius:16px 16px 0 0;padding:18px;width:100%;max-width:500px;max-height:82vh;overflow-y:auto}
+.modal h3{font-size:15px;margin-bottom:12px;font-weight:600}
+.mopt{display:flex;align-items:center;padding:11px;border:1px solid #e8e8e0;border-radius:10px;margin-bottom:7px;cursor:pointer}
+.mopt:hover{background:#f5f5f0}
+.mico{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-right:10px;flex-shrink:0}
+.mopt strong{display:block;font-size:14px}
+.mopt small{color:#888;font-size:12px}
+.modal-close{width:100%;padding:11px;background:#f0f0e8;border:none;border-radius:10px;font-size:14px;cursor:pointer;margin-top:4px;font-weight:500}
+.subform{background:#f8f8f4;border-radius:10px;padding:12px;margin-top:8px;display:none}
+.subform.open{display:block}
+.predef-item{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f0f0e8}
+.predef-item:last-child{border-bottom:none}
+.pname{font-size:14px;font-weight:500}
+.psub{font-size:12px;color:#888;margin-top:1px}
+.stabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.stab{padding:5px 12px;border-radius:20px;border:1px solid #e0e0d8;background:#fff;font-size:13px;cursor:pointer;color:#666}
+.stab.active{background:#222;color:#fff;border-color:#222}
+.reg-year{font-size:13px;font-weight:600;color:#444;padding:7px 12px;background:#f5f5f0;border-radius:8px;margin-bottom:6px;display:flex;justify-content:space-between}
+.reg-item{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid #f5f5f0;gap:6px;flex-wrap:wrap}
+.reg-num{font-weight:700;font-size:13px;min-width:75px}
+.reg-meta{font-size:12px;color:#888;flex:1;min-width:80px}
+.reg-acts{display:flex;gap:4px}
+.fab{position:fixed;bottom:22px;right:22px;width:54px;height:54px;border-radius:50%;background:#222;color:#fff;border:none;font-size:26px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:150;display:flex;align-items:center;justify-content:center}
+.num-display{background:#e8f0fe;border:1px solid #b8d0f8;border-radius:8px;padding:9px 14px;font-size:15px;font-weight:700;color:#1a4a9a;text-align:center;margin-bottom:4px}
+.alert-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;padding:20px}
+.alert-ov.open{display:flex}
+.alert-box{background:#fff;border-radius:14px;padding:22px;max-width:320px;width:100%;text-align:center}
+.aico{font-size:32px;margin-bottom:10px}
+.alert-box h3{font-size:15px;font-weight:600;margin-bottom:8px}
+.alert-box p{font-size:13px;color:#666;margin-bottom:16px;line-height:1.5}
+.abtns{display:flex;gap:8px}
+.abtns button{flex:1;padding:10px;border-radius:9px;border:none;cursor:pointer;font-size:13px;font-weight:600}
+.aok{background:#222;color:#fff}
+.acancel{background:#f0f0e8;color:#444}
+.empty{text-align:center;padding:36px 20px;color:#aaa}
+.eico{font-size:36px;margin-bottom:10px}
+
+/* ===== PLANTILLA FACTURA PARA PDF ===== */
+/* Se renderiza en un div oculto y se captura con html2canvas */
+#factura-render{
+  position:fixed;left:-9999px;top:0;
+  width:794px;height:1123px; /* A4 a 96dpi */
+  background:#fff;
+  font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  color:#333;
+  padding:60px 72px;
+  display:none;
+}
+.fr-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0}
+.fr-title{font-size:52px;font-weight:800;color:#222;letter-spacing:-1px;font-style:italic}
+.fr-emisor{text-align:right;font-size:11px;color:#555;line-height:1.7;max-width:260px}
+.fr-emisor strong{font-size:12px;color:#222;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.fr-numfecha{margin-top:10px;font-size:10.5px;color:#555;line-height:2;letter-spacing:.3px;text-transform:uppercase}
+.fr-cliente{margin-top:20px;font-size:10.5px;color:#555;line-height:1.9;letter-spacing:.3px;text-transform:uppercase}
+.fr-cliente strong{font-size:11px;color:#222;font-weight:700}
+.fr-divider{border:none;border-top:0.5px solid #bbb;margin:32px 0 0}
+.fr-table{width:100%;border-collapse:collapse;margin-top:0}
+.fr-table th{font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#222;padding:12px 0 8px;border-bottom:1px solid #222;text-align:left}
+.fr-table th:last-child{text-align:right}
+.fr-table td{font-size:10.5px;color:#555;padding:10px 0;letter-spacing:.3px;text-transform:uppercase;vertical-align:top;border-bottom:none}
+.fr-table td:last-child{text-align:right;white-space:nowrap;color:#333}
+.fr-totales-wrap{display:flex;justify-content:flex-end;margin-top:60px}
+.fr-totales{width:240px}
+.fr-trow{display:flex;justify-content:space-between;font-size:10.5px;padding:5px 0;color:#555;letter-spacing:.3px}
+.fr-trow span:last-child{color:#333}
+.fr-trow.main{font-weight:800;font-size:12px;color:#222;border-top:1px solid #222;margin-top:4px;padding-top:8px}
+.fr-trow.main span:last-child{color:#222}
+.fr-footer{position:absolute;bottom:60px;left:72px;right:72px}
+.fr-footer-line{border:none;border-top:0.5px solid #bbb;margin-bottom:16px}
+.fr-cuenta{font-size:10px;color:#666;letter-spacing:.5px;text-align:center;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <span class="nav-title">FACTURAS376</span>
+  <button class="tab-btn active" onclick="showScreen('facturas')">Facturas</button>
+  <button class="tab-btn" onclick="showScreen('registro')">Registro</button>
+  <button class="tab-btn" onclick="showScreen('datos')">Datos</button>
+</div>
+
+<!-- LISTA -->
+<div class="screen active" id="screen-facturas">
+  <div class="card">
+    <div class="card-header">Facturas recientes</div>
+    <div class="card-body" id="lista-facturas"></div>
+  </div>
+</div>
+
+<!-- NUEVA / EDITAR -->
+<div class="screen" id="screen-nueva">
+  <div class="card">
+    <div class="card-body">
+      <div class="field"><label>Número de factura</label><div class="num-display" id="num-display">—</div></div>
+      <div class="field"><label>Fecha</label><input type="date" id="fecha-factura" onchange="onFechaChange()"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">Emisor — aparece arriba derecha</div>
+    <div class="card-body">
+      <button class="field-btn" onclick="openModal('emisor')"><span id="val-emisor" class="ph">Seleccionar emisor...</span><span>▼</span></button>
+      <div id="emisor-detail" style="display:none;margin-top:8px">
+        <div class="field"><label>NIF/DNI</label><input type="text" id="emisor-dni"></div>
+        <div class="field"><label>Dirección</label><input type="text" id="emisor-dir"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">Cliente — aparece abajo izquierda</div>
+    <div class="card-body">
+      <button class="field-btn" onclick="openModal('cliente')"><span id="val-cliente" class="ph">Seleccionar cliente...</span><span>▼</span></button>
+      <div id="cliente-detail" style="display:none;margin-top:8px">
+        <div class="field"><label>NIF/DNI</label><input type="text" id="cliente-dni"></div>
+        <div class="field"><label>Dirección</label><input type="text" id="cliente-dir"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">Conceptos</div>
+    <div class="card-body">
+      <div id="conceptos-list"></div>
+      <button class="btn-add" onclick="openModal('concepto')">+ Añadir concepto</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <div class="totales">
+        <div class="trow"><span>Subtotal (base)</span><span id="t-sub">0,00 €</span></div>
+        <div class="trow"><span>IVA (10%)</span><span id="t-iva">0,00 €</span></div>
+        <div class="trow main"><span>TOTAL</span><span id="t-tot">0,00 €</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">Cuenta bancaria</div>
+    <div class="card-body">
+      <button class="field-btn" onclick="openModal('cuenta')"><span id="val-cuenta" class="ph">Seleccionar cuenta...</span><span>▼</span></button>
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="intentarGuardar()">⬇ Guardar y descargar PDF</button>
+  <button class="btn btn-secondary" onclick="cancelarFactura()">Cancelar</button>
+  <div style="height:80px"></div>
+</div>
+
+<!-- REGISTRO -->
+<div class="screen" id="screen-registro">
+  <div class="card">
+    <div class="card-header">Registro de facturas</div>
+    <div class="card-body" id="registro-content"></div>
+  </div>
+</div>
+
+<!-- DATOS -->
+<div class="screen" id="screen-datos">
+  <div class="stabs">
+    <button class="stab active" onclick="showPredef('clientes',event)">Clientes</button>
+    <button class="stab" onclick="showPredef('emisores',event)">Emisores</button>
+    <button class="stab" onclick="showPredef('cuentas',event)">Cuentas</button>
+  </div>
+  <div class="card"><div class="card-body" id="predef-content"></div></div>
+</div>
+
+<button class="fab" id="fab-btn" onclick="nuevaFactura()">+</button>
+
+<!-- MODAL -->
+<div class="modal-ov" id="modal-ov">
+  <div class="modal">
+    <h3 id="modal-title">Seleccionar</h3>
+    <div id="modal-opts"></div>
+    <div class="subform" id="sf-predef"><div id="sf-predef-fields"></div>
+      <button class="btn btn-primary" style="width:auto;padding:8px 16px;margin-top:8px" onclick="saveNewPredef()">Guardar</button></div>
+    <div class="subform" id="sf-manual"><div id="sf-manual-fields"></div>
+      <button class="btn btn-primary" style="width:auto;padding:8px 16px;margin-top:8px" onclick="applyManual()">Usar</button></div>
+    <button class="modal-close" onclick="closeModal()">Cerrar</button>
+  </div>
+</div>
+
+<!-- ALERT -->
+<div class="alert-ov" id="alert-ov">
+  <div class="alert-box">
+    <div class="aico" id="a-ico">⚠️</div>
+    <h3 id="a-title"></h3><p id="a-msg"></p>
+    <div class="abtns" id="a-btns"></div>
+  </div>
+</div>
+
+<!-- PLANTILLA FACTURA (oculta, se captura para PDF) -->
+<div id="factura-render">
+  <div style="position:relative;width:100%;height:100%">
+    <div class="fr-head">
+      <div class="fr-title">Factura</div>
+      <div class="fr-emisor">
+        <strong id="fr-emisor-nom"></strong><br>
+        <span id="fr-emisor-dni"></span><br>
+        <span id="fr-emisor-dir"></span>
+      </div>
+    </div>
+    <div class="fr-numfecha">
+      FACTURA N.º <span id="fr-numero"></span><br>
+      FECHA: <span id="fr-fecha"></span>
+    </div>
+    <div class="fr-cliente">
+      <strong id="fr-cliente-nom"></strong><br>
+      <span id="fr-cliente-dni"></span><br>
+      <span id="fr-cliente-dir"></span>
+    </div>
+    <hr class="fr-divider">
+    <table class="fr-table">
+      <thead><tr><th>Concepto</th><th>Importe</th></tr></thead>
+      <tbody id="fr-conceptos"></tbody>
+    </table>
+    <div class="fr-totales-wrap">
+      <div class="fr-totales">
+        <div class="fr-trow"><span>SUBTOTAL</span><span id="fr-subtotal"></span></div>
+        <div class="fr-trow"><span>IVA (10%)</span><span id="fr-iva"></span></div>
+        <div class="fr-trow main"><span>TOTAL</span><span id="fr-total"></span></div>
+      </div>
+    </div>
+    <div class="fr-footer">
+      <hr class="fr-footer-line">
+      <div class="fr-cuenta">N.º CUENTA: <span id="fr-iban"></span></div>
+    </div>
+  </div>
+</div>
+
+<a id="pdf-link" style="display:none"></a>
+
+<!-- html2canvas desde CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+// ===== DB =====
+let db=JSON.parse(localStorage.getItem('f376v5')||'null')||{
+  clientes:[{id:'c1',nombre:'Empresa Ejemplo SL',dni:'B12345678',dir:'Calle Mayor 1, 03001 Alicante'}],
+  emisores:[{id:'e1',nombre:'Domitila Villena Sampere',dni:'00000000A',dir:'Calle Fotografia 5, 03002 Alicante'}],
+  cuentas:[{id:'cu1',nombre:'Domitila Villena Sampere',iban:'ES87 0000 1234 5678 0000 9999'}],
+  facturas:[]
+};
+function save(){localStorage.setItem('f376v5',JSON.stringify(db))}
+
+const MESES=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+let inv={},editingId=null,modalCtx='',alertCbs=null;
+
+function resetInv(){inv={fecha:'',emisor:null,cliente:null,cuenta:null};editingId=null}
+function fe(n){return(+n||0).toFixed(2).replace('.',',')+' \u20ac'}
+function getMes(f){if(!f||!f.includes('-'))return'MES';const m=parseInt(f.split('-')[1]);return(m>=1&&m<=12)?MESES[m-1]:'MES'}
+function isoAFmt(iso){if(!iso)return'';const p=iso.split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:iso}
+function fmtAIso(fmt){if(!fmt)return'';const p=fmt.split('/');return p.length===3?p[2]+'-'+p[1]+'-'+p[0]:fmt}
+function yearFromNum(n){return(n&&n.includes('-'))?n.split('-')[0]:null}
+
+// ===== NUMERACIÓN =====
+function getNextNum(fecha,excId){
+  if(!fecha)return'—';
+  const y=fecha.split('-')[0];
+  const c=db.facturas.filter(f=>f.numero&&f.numero.startsWith(y+'-')&&f.id!==excId).length;
+  return y+'-'+(c+1).toString().padStart(2,'0');
+}
+function onFechaChange(){
+  inv.fecha=document.getElementById('fecha-factura').value||'';
+  document.getElementById('num-display').textContent=getNextNum(inv.fecha,editingId);
+  document.querySelectorAll('.cmes').forEach(el=>el.textContent=getMes(inv.fecha));
+  document.querySelectorAll('.cnom').forEach(el=>{
+    el.value=(el.dataset.tipo==='taxi'?'SERVICIOS TAXI MES ':'SERVICIOS TAXI AEROPUERTO ')+getMes(inv.fecha);
+  });
+}
+
+// ===== CHECKS FECHA =====
+function fechaAnteriorUltima(fechaIso,excId){
+  const otras=db.facturas.filter(f=>f.id!==excId&&f.fecha);
+  if(!otras.length)return null;
+  let maxTs=0,maxF=null;
+  otras.forEach(f=>{const ts=new Date(fmtAIso(f.fecha)).getTime();if(!isNaN(ts)&&ts>maxTs){maxTs=ts;maxF=f}});
+  if(!maxF)return null;
+  const nd=new Date(fechaIso);nd.setHours(0,0,0,0);
+  const md=new Date(fmtAIso(maxF.fecha));md.setHours(0,0,0,0);
+  return nd<md?maxF:null;
+}
+function checkOrden(fechaIso,numero,excId){
+  const y=fechaIso.split('-')[0];
+  const num=parseInt((numero.split('-')[1])||'0');
+  const lista=db.facturas.filter(f=>f.numero&&f.numero.startsWith(y+'-')&&f.id!==excId)
+    .map(f=>({d:new Date(fmtAIso(f.fecha)),n:parseInt(f.numero.split('-')[1]||'0')}));
+  lista.push({d:new Date(fechaIso),n:num});
+  lista.sort((a,b)=>a.d-b.d);
+  return lista.some((x,i)=>x.n!==i+1);
+}
+
+// ===== SCREENS =====
+function showScreen(s){
+  document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(e=>e.classList.remove('active'));
+  document.getElementById('screen-'+s).classList.add('active');
+  const idx={facturas:0,registro:1,datos:2}[s];
+  if(idx!==undefined)document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+  const fab=document.getElementById('fab-btn');
+  if(s==='facturas'){renderLista();fab.style.display='flex'}
+  else if(s==='registro'){renderRegistro();fab.style.display='none'}
+  else if(s==='datos'){showPredef('clientes',{target:document.querySelectorAll('.stab')[0]});fab.style.display='none'}
+  else fab.style.display='none';
+}
+
+// ===== LISTA =====
+function renderLista(){
+  const el=document.getElementById('lista-facturas');
+  if(!db.facturas.length){el.innerHTML='<div class="empty"><div class="eico">🧾</div><p>Sin facturas. Pulsa + para crear.</p></div>';return}
+  el.innerHTML=db.facturas.slice().sort((a,b)=>b.id.localeCompare(a.id)).map(f=>`
+    <div style="display:flex;align-items:center;padding:9px 0;border-bottom:1px solid #f5f5f0;gap:8px">
+      <div style="flex:1"><div style="font-weight:700;font-size:14px">${f.numero||''}</div>
+      <div style="font-size:12px;color:#888">${f.cliente||''} · ${f.fecha||''}</div></div>
+      <div style="font-weight:700;font-size:14px">${fe(f.total)}</div>
+      <button class="btn-pdf" onclick="descargarPDF('${f.id}')">PDF</button>
+    </div>`).join('');
+}
+
+// ===== REGISTRO =====
+function renderRegistro(){
+  const el=document.getElementById('registro-content');
+  if(!db.facturas.length){el.innerHTML='<div class="empty"><div class="eico">📂</div><p>Sin facturas.</p></div>';return}
+  const series={};
+  db.facturas.forEach(f=>{const y=yearFromNum(f.numero)||'?';if(!series[y])series[y]=[];series[y].push(f)});
+  let html='';
+  Object.keys(series).sort((a,b)=>b.localeCompare(a)).forEach(y=>{
+    const items=series[y].sort((a,b)=>parseInt((a.numero||'0').split('-')[1]||0)-parseInt((b.numero||'0').split('-')[1]||0));
+    html+=`<div style="margin-bottom:14px"><div class="reg-year"><span>Serie ${y}</span><span style="color:#888;font-weight:400">${items.length} factura${items.length!==1?'s':''}</span></div>`;
+    items.forEach(f=>{html+=`<div class="reg-item">
+      <div class="reg-num">${f.numero||''}</div>
+      <div class="reg-meta">${f.cliente||''}<br>${f.fecha||''}</div>
+      <div style="font-weight:600;font-size:13px;white-space:nowrap">${fe(f.total)}</div>
+      <div class="reg-acts">
+        <button class="btn-pdf" onclick="descargarPDF('${f.id}')">PDF</button>
+        <button class="btn-warn" onclick="editarFactura('${f.id}')">Editar</button>
+        <button class="btn-danger" onclick="confirmarEliminar('${f.id}')">Eliminar</button>
+      </div></div>`});
+    html+='</div>';
+  });
+  el.innerHTML=html;
+}
+
+// ===== NUEVA =====
+function nuevaFactura(){
+  resetInv();
+  document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active'));
+  document.getElementById('screen-nueva').classList.add('active');
+  document.getElementById('fab-btn').style.display='none';
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('fecha-factura').value=today;
+  inv.fecha=today;
+  document.getElementById('num-display').textContent=getNextNum(today,null);
+  limpiarForm();
+  if(db.emisores.length)setEmisor(db.emisores[0]);
+  if(db.cuentas.length)setCuenta(db.cuentas[0]);
+}
+function limpiarForm(){
+  document.getElementById('val-emisor').textContent='Seleccionar emisor...';document.getElementById('val-emisor').className='ph';
+  document.getElementById('val-cliente').textContent='Seleccionar cliente...';document.getElementById('val-cliente').className='ph';
+  document.getElementById('val-cuenta').textContent='Seleccionar cuenta...';document.getElementById('val-cuenta').className='ph';
+  document.getElementById('conceptos-list').innerHTML='';
+  document.getElementById('cliente-detail').style.display='none';
+  document.getElementById('emisor-detail').style.display='none';
+  recalc();
+}
+function cancelarFactura(){editingId?showScreen('registro'):showScreen('facturas')}
+
+// ===== EDITAR =====
+function editarFactura(id){
+  const f=db.facturas.find(x=>x.id===id);
+  if(!f)return;
+  editingId=id;
+  document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active'));
+  document.getElementById('screen-nueva').classList.add('active');
+  document.getElementById('fab-btn').style.display='none';
+  const iso=fmtAIso(f.fecha||'');
+  document.getElementById('fecha-factura').value=iso;
+  inv.fecha=iso;
+  document.getElementById('num-display').textContent=f.numero||'—';
+  limpiarForm();
+  if(f.snapEmisor)setEmisorData(f.snapEmisor.nombre||'',f.snapEmisor.dni||'',f.snapEmisor.dir||'');
+  else if(db.emisores.length)setEmisor(db.emisores[0]);
+  if(f.snapCliente)setClienteData(f.snapCliente.nombre||'',f.snapCliente.dni||'',f.snapCliente.dir||'');
+  if(f.snapCuenta){inv.cuenta=f.snapCuenta;const el=document.getElementById('val-cuenta');el.textContent=f.snapCuenta.iban||'';el.className=''}
+  else if(db.cuentas.length)setCuenta(db.cuentas[0]);
+  (f.conceptos||[]).forEach(c=>addConceptoData(c.tipo||'taxi',c.importe||0));
+  recalc();
+}
+
+// ===== ELIMINAR =====
+function confirmarEliminar(id){
+  const f=db.facturas.find(x=>x.id===id);if(!f)return;
+  showAlert('🗑️','Eliminar factura',`¿Eliminar la factura ${f.numero}?`,
+    [{txt:'Cancelar',cls:'acancel',fn:closeAlert},
+     {txt:'Eliminar',cls:'aok',fn:()=>{db.facturas=db.facturas.filter(x=>x.id!==id);save();closeAlert();renderRegistro()}}]);
+}
+
+// ===== VALIDAR =====
+async function intentarGuardar(){
+  const fecha=document.getElementById('fecha-factura').value||'';
+  if(!fecha){showAlert('⚠️','Falta la fecha','Selecciona una fecha.',[{txt:'OK',cls:'aok',fn:closeAlert}]);return}
+  if(!document.querySelectorAll('.concepto-row').length){showAlert('⚠️','Sin conceptos','Añade al menos un concepto.',[{txt:'OK',cls:'aok',fn:closeAlert}]);return}
+  if(!inv.cliente){showAlert('⚠️','Sin cliente','Selecciona un cliente.',[{txt:'OK',cls:'aok',fn:closeAlert}]);return}
+  const cf=fechaAnteriorUltima(fecha,editingId);
+  if(cf){
+    showAlert('⚠️','Fecha anterior',`La fecha es anterior a la factura ${cf.numero} (${cf.fecha}).`,
+      [{txt:'Cancelar',cls:'acancel',fn:closeAlert},{txt:'Continuar',cls:'aok',fn:()=>{closeAlert();checkOrdenYGuardar(fecha)}}]);
+    return;
+  }
+  await checkOrdenYGuardar(fecha);
+}
+async function checkOrdenYGuardar(fecha){
+  const num=editingId?document.getElementById('num-display').textContent:getNextNum(fecha,null);
+  if(checkOrden(fecha,num,editingId)){
+    showAlert('⚠️','Orden incorrecto',`La numeración no seguirá el orden cronológico. ¿Guardar igualmente?`,
+      [{txt:'Cancelar',cls:'acancel',fn:closeAlert},{txt:'Guardar',cls:'aok',fn:()=>{closeAlert();guardarYDescargar()}}]);
+    return;
+  }
+  await guardarYDescargar();
+}
+
+// ===== GUARDAR =====
+async function guardarYDescargar(){
+  const fecha=document.getElementById('fecha-factura').value||'';
+  const fechaFmt=isoAFmt(fecha);
+  const numero=editingId?document.getElementById('num-display').textContent:getNextNum(fecha,null);
+  const eNom=document.getElementById('val-emisor').textContent;
+  const eDni=document.getElementById('emisor-dni').value||'';
+  const eDir=document.getElementById('emisor-dir').value||'';
+  const cNom=document.getElementById('val-cliente').textContent;
+  const cDni=document.getElementById('cliente-dni').value||'';
+  const cDir=document.getElementById('cliente-dir').value||'';
+  const cuIban=(inv.cuenta&&inv.cuenta.iban)||document.getElementById('val-cuenta').textContent||'';
+  let conceptos=[],sub=0;
+  document.querySelectorAll('.concepto-row').forEach(r=>{
+    const nom=(document.getElementById(r.id+'-nom')||{}).value||'';
+    const tipo=document.getElementById(r.id+'-nom')&&document.getElementById(r.id+'-nom').dataset.tipo||'taxi';
+    const tv=parseFloat((document.getElementById(r.id+'-tot')||{}).value)||0;
+    const base=tv/1.1;sub+=base;
+    conceptos.push({nom,tipo,importe:tv,base});
+  });
+  const iva=sub*0.1,total=sub+iva;
+  const entry={
+    id:editingId||('f'+Date.now()),numero,fecha:fechaFmt,cliente:cNom,total,
+    snapEmisor:{nombre:eNom,dni:eDni,dir:eDir},
+    snapCliente:{nombre:cNom,dni:cDni,dir:cDir},
+    snapCuenta:{iban:cuIban},
+    conceptos,subtotal:sub,iva
+  };
+  if(editingId)db.facturas=db.facturas.map(f=>f.id===editingId?entry:f);
+  else db.facturas.push(entry);
+  save();
+  await generarYDescargarPDF(entry);
+  editingId?showScreen('registro'):showScreen('facturas');
+}
+
+async function descargarPDF(id){
+  const f=db.facturas.find(x=>x.id===id);
+  if(f)await generarYDescargarPDF(f);
+}
+
+// ===== GENERAR PDF con html2canvas =====
+async function generarYDescargarPDF(f){
+  // Rellenar la plantilla HTML oculta
+  const g=id=>document.getElementById(id);
+  g('fr-emisor-nom').textContent=(f.snapEmisor&&f.snapEmisor.nombre)||'';
+  g('fr-emisor-dni').textContent=(f.snapEmisor&&f.snapEmisor.dni)||'';
+  g('fr-emisor-dir').textContent=(f.snapEmisor&&f.snapEmisor.dir)||'';
+  g('fr-numero').textContent=f.numero||'';
+  g('fr-fecha').textContent=f.fecha||'';
+  g('fr-cliente-nom').textContent=((f.snapCliente&&f.snapCliente.nombre)||f.cliente||'').toUpperCase();
+  g('fr-cliente-dni').textContent=(f.snapCliente&&f.snapCliente.dni)||'';
+  g('fr-cliente-dir').textContent=(f.snapCliente&&f.snapCliente.dir)||'';
+  g('fr-subtotal').textContent=fe(f.subtotal||0);
+  g('fr-iva').textContent=fe(f.iva||0);
+  g('fr-total').textContent=fe(f.total||0);
+  g('fr-iban').textContent=(f.snapCuenta&&f.snapCuenta.iban)||'';
+
+  // Conceptos
+  const tbody=g('fr-conceptos');
+  tbody.innerHTML='';
+  (f.conceptos||[]).forEach(c=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${(c.nom||'').toUpperCase()}</td><td>${fe(c.importe||0)}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  // Mostrar el div para capturarlo
+  const render=g('factura-render');
+  render.style.display='block';
+
+  try{
+    const canvas=await html2canvas(render,{
+      scale:2,
+      useCORS:true,
+      backgroundColor:'#ffffff',
+      width:794,
+      height:1123
+    });
+
+    render.style.display='none';
+
+    // Canvas → JPEG → PDF manual
+    const jpegB64=canvas.toDataURL('image/jpeg',0.95).split(',')[1];
+    const jpegBytes=atob(jpegB64);
+    const jpegLen=jpegBytes.length;
+    const W=595,H=842;
+
+    const e2=new TextEncoder();
+    const o={};let parts=[];let offset=0;
+
+    const hdr=e2.encode('%PDF-1.4\n%\xFF\xFF\xFF\xFF\n');
+    offset+=hdr.length;parts.push(hdr);
+
+    function ao(n,content){
+      const b=e2.encode(`${n} 0 obj\n${content}\nendobj\n`);
+      o[n]=offset;offset+=b.length;parts.push(b);
+    }
+    function aoBin(n,hdrStr,binArr){
+      const h=e2.encode(`${n} 0 obj\n${hdrStr}\nstream\n`);
+      const t=e2.encode(`\nendstream\nendobj\n`);
+      o[n]=offset;offset+=h.length+binArr.length+t.length;
+      parts.push(h,binArr,t);
+    }
+
+    ao(1,`<< /Type /Catalog /Pages 2 0 R >>`);
+    ao(2,`<< /Type /Pages /Kids [3 0 R] /Count 1 >>`);
+    ao(3,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}]\n/Resources << /XObject << /Img 4 0 R >> >>\n/Contents 5 0 R >>`);
+
+    const imgArr=new Uint8Array(jpegLen);
+    for(let i=0;i<jpegLen;i++)imgArr[i]=jpegBytes.charCodeAt(i);
+    aoBin(4,`<< /Type /XObject /Subtype /Image /Width ${canvas.width} /Height ${canvas.height}\n/ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegLen} >>`,imgArr);
+
+    // Content stream: escalar imagen para que llene la página
+    const cs=`q ${W} 0 0 ${H} 0 0 cm /Img Do Q`;
+    const csB=e2.encode(cs);
+    aoBin(5,`<< /Length ${csB.length} >>`,csB);
+
+    const xrefOff=offset;
+    const nO=6;
+    let xr=`xref\n0 ${nO}\n0000000000 65535 f \n`;
+    for(let i=1;i<nO;i++)xr+=(o[i]||0).toString().padStart(10,'0')+' 00000 n \n';
+    xr+=`trailer\n<< /Size ${nO} /Root 1 0 R >>\nstartxref\n${xrefOff}\n%%EOF`;
+    parts.push(e2.encode(xr));
+
+    const total=parts.reduce((s,p)=>s+p.length,0);
+    const out=new Uint8Array(total);
+    let off2=0;parts.forEach(p=>{out.set(p,off2);off2+=p.length});
+
+    const blob=new Blob([out],{type:'application/pdf'});
+    const url=URL.createObjectURL(blob);
+    const a=document.getElementById('pdf-link');
+    a.href=url;
+    a.download=`Factura_${(f.numero||'X').replace(/[^a-zA-Z0-9]/g,'_')}.pdf`;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),5000);
+  }catch(err){
+    render.style.display='none';
+    showAlert('⚠️','Error al generar PDF','No se pudo generar el PDF: '+err.message,[{txt:'OK',cls:'aok',fn:closeAlert}]);
+  }
+}
+
+// ===== CONCEPTOS =====
+function addConcepto(tipo){addConceptoData(tipo,0);closeModal()}
+function addConceptoData(tipo,importeConIVA){
+  const id='cp'+Date.now()+Math.random().toString(36).slice(2,6);
+  const mes=getMes(inv.fecha);
+  const label=tipo==='taxi'?'SERVICIOS TAXI MES ':'SERVICIOS TAXI AEROPUERTO ';
+  const div=document.createElement('div');
+  div.className='concepto-row';div.id=id;
+  div.innerHTML=`<button class="del-btn" onclick="document.getElementById('${id}').remove();recalc()">✕</button>
+    <div class="field"><label>Concepto</label>
+      <div style="font-size:14px;font-weight:500;padding:5px 0">${label}<span class="cmes">${mes}</span></div>
+      <input type="hidden" id="${id}-nom" class="cnom" data-tipo="${tipo}" value="${label+mes}">
+    </div>
+    <div class="row2">
+      <div class="field"><label>Importe (IVA inc.)</label><input type="number" id="${id}-tot" placeholder="0.00" value="${importeConIVA||''}" step="0.01" oninput="recalc()"></div>
+      <div class="field"><label>Base imp.</label><input type="number" id="${id}-base" readonly style="background:#f0f0e8;color:#888"></div>
+    </div>`;
+  document.getElementById('conceptos-list').appendChild(div);
+  if(importeConIVA)recalc();
+}
+function recalc(){
+  let sub=0;
+  document.querySelectorAll('.concepto-row').forEach(r=>{
+    const tv=parseFloat((document.getElementById(r.id+'-tot')||{}).value)||0;
+    const base=tv/1.1;
+    const bEl=document.getElementById(r.id+'-base');
+    if(bEl)bEl.value=base>0?base.toFixed(2):'';
+    sub+=base;
+  });
+  const iva=sub*0.1,tot=sub+iva;
+  document.getElementById('t-sub').textContent=fe(sub);
+  document.getElementById('t-iva').textContent=fe(iva);
+  document.getElementById('t-tot').textContent=fe(tot);
+}
+
+// ===== MODAL =====
+function openModal(ctx){
+  modalCtx=ctx;
+  document.getElementById('sf-predef').className='subform';
+  document.getElementById('sf-manual').className='subform';
+  document.getElementById('modal-ov').classList.add('open');
+  const titles={emisor:'Emisor',cliente:'Cliente',cuenta:'Cuenta bancaria',concepto:'Tipo de concepto'};
+  document.getElementById('modal-title').textContent=titles[ctx]||ctx;
+  renderModalOpts();
+}
+function closeModal(){document.getElementById('modal-ov').classList.remove('open')}
+function renderModalOpts(){
+  const el=document.getElementById('modal-opts');
+  if(modalCtx==='concepto'){
+    const mes=getMes(inv.fecha);
+    el.innerHTML=`
+      <div class="mopt" onclick="addConcepto('taxi')"><div class="mico" style="background:#f0f8f0">🚕</div><div><strong>Servicios Taxi mes</strong><small>SERVICIOS TAXI MES ${mes}</small></div></div>
+      <div class="mopt" onclick="addConcepto('aeropuerto')"><div class="mico" style="background:#f0f4ff">✈️</div><div><strong>Servicios Taxi aeropuerto</strong><small>SERVICIOS TAXI AEROPUERTO ${mes}</small></div></div>`;
+    return;
+  }
+  const map={emisor:'emisores',cliente:'clientes',cuenta:'cuentas'};
+  const items=db[map[modalCtx]]||[];
+  let h=items.map(it=>{
+    const sub=modalCtx==='cuenta'?it.iban:(it.dni||'')+' · '+(it.dir||'');
+    return`<div class="mopt" onclick="selectPredef('${it.id}')"><div class="mico" style="background:#f0f0e8">📋</div><div><strong>${it.nombre||''}</strong><small>${sub}</small></div></div>`;
+  }).join('');
+  h+=`<div class="mopt" onclick="showSF('predef')"><div class="mico" style="background:#e8f4e8">+</div><div><strong>Nuevo predefinido</strong></div></div>
+      <div class="mopt" onclick="showSF('manual')"><div class="mico" style="background:#eef0ff">✏</div><div><strong>Escribir manualmente</strong></div></div>`;
+  el.innerHTML=h;
+}
+function selectPredef(id){
+  const map={emisor:'emisores',cliente:'clientes',cuenta:'cuentas'};
+  const it=(db[map[modalCtx]]||[]).find(x=>x.id===id);
+  if(!it)return;
+  if(modalCtx==='emisor')setEmisor(it);
+  else if(modalCtx==='cliente')setCliente(it);
+  else if(modalCtx==='cuenta')setCuenta(it);
+  closeModal();
+}
+const flds={
+  emisor:'<div class="field"><label>Nombre</label><input type="text" id="fx-n"></div><div class="field"><label>DNI/NIF</label><input type="text" id="fx-d"></div><div class="field"><label>Dirección</label><input type="text" id="fx-dir"></div>',
+  cliente:'<div class="field"><label>Nombre</label><input type="text" id="fx-n"></div><div class="field"><label>DNI/NIF</label><input type="text" id="fx-d"></div><div class="field"><label>Dirección</label><input type="text" id="fx-dir"></div>',
+  cuenta:'<div class="field"><label>Titular</label><input type="text" id="fx-n"></div><div class="field"><label>IBAN</label><input type="text" id="fx-d"></div>'
+};
+function showSF(which){
+  document.getElementById('sf-predef-fields').innerHTML=flds[modalCtx]||'';
+  document.getElementById('sf-manual-fields').innerHTML=flds[modalCtx]||'';
+  document.getElementById(which==='predef'?'sf-predef':'sf-manual').className='subform open';
+  document.getElementById(which==='predef'?'sf-manual':'sf-predef').className='subform';
+}
+function vv(id){const e=document.getElementById(id);return e?e.value.trim():''}
+function saveNewPredef(){
+  const id='x'+Date.now(),n=vv('fx-n'),d=vv('fx-d'),dir=vv('fx-dir');
+  if(modalCtx==='emisor'){const it={id,nombre:n,dni:d,dir};db.emisores.push(it);save();setEmisor(it)}
+  else if(modalCtx==='cliente'){const it={id,nombre:n,dni:d,dir};db.clientes.push(it);save();setCliente(it)}
+  else if(modalCtx==='cuenta'){const it={id,nombre:n,iban:d};db.cuentas.push(it);save();setCuenta(it)}
+  closeModal();
+}
+function applyManual(){
+  const n=vv('fx-n'),d=vv('fx-d'),dir=vv('fx-dir');
+  if(modalCtx==='emisor'){setEmisorData(n,d,dir);inv.emisor={nombre:n,dni:d,dir}}
+  else if(modalCtx==='cliente'){setClienteData(n,d,dir);inv.cliente={nombre:n,dni:d,dir}}
+  else if(modalCtx==='cuenta'){setCuenta({nombre:n,iban:d})}
+  closeModal();
+}
+function setEmisor(e){inv.emisor=e;setEmisorData(e.nombre||'',e.dni||'',e.dir||'')}
+function setEmisorData(n,d,dir){
+  document.getElementById('val-emisor').textContent=n;document.getElementById('val-emisor').className='';
+  inv.emisor=inv.emisor||{nombre:n,dni:d,dir};
+  document.getElementById('emisor-detail').style.display='block';
+  document.getElementById('emisor-dni').value=d;document.getElementById('emisor-dir').value=dir;
+}
+function setCliente(c){inv.cliente=c;setClienteData(c.nombre||'',c.dni||'',c.dir||'')}
+function setClienteData(n,d,dir){
+  document.getElementById('val-cliente').textContent=n;document.getElementById('val-cliente').className='';
+  inv.cliente=inv.cliente||{nombre:n,dni:d,dir};
+  document.getElementById('cliente-detail').style.display='block';
+  document.getElementById('cliente-dni').value=d;document.getElementById('cliente-dir').value=dir;
+}
+function setCuenta(c){
+  inv.cuenta=c;
+  document.getElementById('val-cuenta').textContent=c.iban||c.nombre||'';
+  document.getElementById('val-cuenta').className='';
+}
+
+// ===== PREDEFINIDOS =====
+function showPredef(type,evt){
+  if(evt&&evt.target){document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active'));evt.target.classList.add('active')}
+  const items=db[type]||[];
+  const ri=it=>{
+    const sub=type==='cuentas'?it.iban:(it.dni||'')+' · '+(it.dir||'');
+    return`<div class="predef-item"><div><div class="pname">${it.nombre||''}</div><div class="psub">${sub}</div></div>
+      <button class="btn-danger" onclick="delPredef('${type}','${it.id}')">Eliminar</button></div>`;
+  };
+  const af={
+    clientes:'<div class="field"><label>Nombre</label><input type="text" id="ap-n"></div><div class="field"><label>DNI/NIF</label><input type="text" id="ap-d"></div><div class="field"><label>Dirección</label><input type="text" id="ap-dir"></div><button class="btn btn-primary" style="width:auto;padding:8px 16px;margin-top:8px" onclick="addPredef(\'clientes\')">+ Añadir</button>',
+    emisores:'<div class="field"><label>Nombre</label><input type="text" id="ap-n"></div><div class="field"><label>DNI/NIF</label><input type="text" id="ap-d"></div><div class="field"><label>Dirección</label><input type="text" id="ap-dir"></div><button class="btn btn-primary" style="width:auto;padding:8px 16px;margin-top:8px" onclick="addPredef(\'emisores\')">+ Añadir</button>',
+    cuentas:'<div class="field"><label>Titular</label><input type="text" id="ap-n"></div><div class="field"><label>IBAN</label><input type="text" id="ap-d"></div><button class="btn btn-primary" style="width:auto;padding:8px 16px;margin-top:8px" onclick="addPredef(\'cuentas\')">+ Añadir</button>'
+  };
+  document.getElementById('predef-content').innerHTML=
+    (items.length?items.map(ri).join(''):'<p style="color:#aaa;font-size:13px;margin-bottom:12px">Sin elementos.</p>')+
+    `<div style="border-top:1px solid #f0f0e8;margin-top:10px;padding-top:10px">${af[type]||''}</div>`;
+}
+function delPredef(type,id){db[type]=(db[type]||[]).filter(x=>x.id!==id);save();document.querySelector('.stab.active').click()}
+function addPredef(type){
+  const id='x'+Date.now();
+  if(type==='cuentas')db.cuentas.push({id,nombre:vv('ap-n'),iban:vv('ap-d')});
+  else db[type].push({id,nombre:vv('ap-n'),dni:vv('ap-d'),dir:vv('ap-dir')});
+  save();document.querySelector('.stab.active').click();
+}
+
+// ===== ALERTS =====
+function showAlert(ico,title,msg,btns){
+  document.getElementById('a-ico').textContent=ico;
+  document.getElementById('a-title').textContent=title;
+  document.getElementById('a-msg').textContent=msg;
+  document.getElementById('a-btns').innerHTML=btns.map((b,i)=>`<button class="${b.cls}" onclick="alertClick(${i})">${b.txt}</button>`).join('');
+  alertCbs=btns;document.getElementById('alert-ov').classList.add('open');
+}
+function alertClick(i){if(alertCbs&&alertCbs[i])alertCbs[i].fn()}
+function closeAlert(){document.getElementById('alert-ov').classList.remove('open')}
+
+renderLista();
+</script>
+</body>
+</html>
